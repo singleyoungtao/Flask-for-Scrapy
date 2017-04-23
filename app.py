@@ -59,21 +59,27 @@ with ix.searcher() as searcher:
     b = results[0:2]
     c = results[0].fields()
     d = json.dumps(c, ensure_ascii=False)
+    e = results[1]
+    f = results[0]
     print(type(results))
     print(len(results))
     print(results[0:2])
+    print(results[0])
+    g = []
+    for i in range(a):
+        g.append(results[i].fields())
     keywords = [keyword for keyword, score in
                 results.key_terms("content", docs=10, numterms=5)]
     print(keywords)
-    # 此处search_page及其参数需查明
-    searcher.search_page(query, 1, pagelen=20)
+    # 此处search_page及其参数需查明,考虑前段分页
+    # searcher.search_page(query, 1, pagelen=20)
 
 # ix.close()
 
 
 @app.route('/')
 def index_page():
-    return render_template('index.html', a=a, c=c)
+    return render_template('index.html', a=a, c=c, g=g)
 
 
 if __name__ == "__main__":
