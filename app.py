@@ -45,7 +45,7 @@ ix = open_dir("testindexdir")
 writer = ix.writer()
 # for coll in collection.find(timeout=False):
 for coll in collection.find():
-    writer.add_document(title=coll["title"], url=coll["url"],
+    writer.update_document(title=coll["title"], url=coll["url"],
                            content=coll["content"])
 writer.commit()
 
