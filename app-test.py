@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 
 import os, json
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from pymongo import MongoClient
 from whoosh.fields import Schema, TEXT, ID, KEYWORD, STORED
 from whoosh.index import create_in, open_dir
@@ -10,6 +10,7 @@ from whoosh.qparser import MultifieldParser
 from jieba.analyse import ChineseAnalyzer
 
 app = Flask(__name__)
+# app.config['JSON_AS_ASCII'] = False
 
 client = MongoClient('localhost:27017')
 db = client.search
@@ -98,6 +99,12 @@ nwsuaf.close()
 @app.route('/')
 def index_page():
     return render_template('index.html', pageshow=pageshow)
+
+@app.route('/results', methods=['GET'])
+def get_results():
+    return jsonify({'results': pageshow})
+
+
 
 
 if __name__ == "__main__":
