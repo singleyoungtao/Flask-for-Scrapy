@@ -3,6 +3,7 @@
 
 import os, json
 from flask import Flask, render_template, jsonify
+from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
 from whoosh.fields import Schema, TEXT, ID, KEYWORD, STORED
 from whoosh.index import create_in, open_dir
@@ -10,6 +11,7 @@ from whoosh.qparser import MultifieldParser
 from jieba.analyse import ChineseAnalyzer
 
 app = Flask(__name__)
+CORS(app)
 # app.config['JSON_AS_ASCII'] = False
 
 client = MongoClient('localhost:27017')
