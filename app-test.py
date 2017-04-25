@@ -1,8 +1,8 @@
 #!/bin/python3
 #-*-coding:utf-8-*-
 
-import os, json
-from flask import Flask, render_template, jsonify
+import os, json, re
+from flask import Flask, render_template, request, jsonify, abort
 from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
 from whoosh.fields import Schema, TEXT, ID, KEYWORD, STORED
@@ -73,7 +73,14 @@ class WhooshSarch(object):
         results = []
         with self.ix.searcher() as searcher:
             result_origin = searcher.search(self.parse_query(query))
+            #TODO 将查询结果中'content'字段内容改为html格式的摘要
+
             for result in result_origin:
+                #Fragment size 的maxchars默认200，surround默认20
+                # dict(result)
+                # re.sub("[\t\r\n ]+", " ", result['content'])
+                # 不用去掉这几个字符，在返回结果中他们会在浏览器中自动转化
+                # results.append(result)
                 results.append(dict(result))
         return results
             # result_len = len(result_origin)
@@ -92,19 +99,34 @@ class WhooshSarch(object):
 
 nwsuaf = WhooshSarch(co)
 nwsuaf.rebuild_index()
-query_one = "关于举办新西兰林肯大学土壤学专家系列学术报告的通知"
-pageshow = nwsuaf.search(query_one)
-print(pageshow)
-nwsuaf.close()
+# query_one = "关于举办新西兰林肯大学土壤学专家系列学术报告的通知"
+# pageshow = nwsuaf.search(query_one)
+# print(pageshow)
+# nwsuaf.close()
 
 
 @app.route('/')
 def index_page():
-    return render_template('index.html', pageshow=pageshow)
+    return render_template('index.html')
 
-@app.route('/results', methods=['GET'])
+@app.route('/results', methods=['GET', 'POST'])
 def get_results():
-    return jsonify({'results': pageshow})
+    if not request.json or not 'keywords' in request.json:
+        abort(400)
+    query_keywords = request.json['keywords']
+    pageshow = nwsuaf.search(query_keywords)
+    print(query_keywords)
+    print(pageshow)
+    # TODO 此处添加完成搜索后的返回消息
+    return jsonify({'results': pageshow}), 201
+
+# @app.route('/keywords', method=['POST'])
+# def post_keywords():
+#     query_keywords = resquest.json['keywords']
+#     pageshow = nwsuaf.search(query_keywords)
+#     print(pageshow)
+#     # TODO 此处添加完成搜索后的返回消息
+#     return 200
 
 
 
