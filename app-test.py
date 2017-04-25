@@ -8,6 +8,8 @@ from pymongo import MongoClient
 from whoosh.fields import Schema, TEXT, ID, KEYWORD, STORED
 from whoosh.index import create_in, open_dir
 from whoosh.qparser import MultifieldParser
+from whoosh.highlight import highlight, ContextFragmenter, Highlighter
+from whoosh.searching import Hit
 from jieba.analyse import ChineseAnalyzer
 
 app = Flask(__name__)
@@ -71,17 +73,40 @@ class WhooshSarch(object):
 
     def search(self, query):
         results = []
+        fragments = []
         with self.ix.searcher() as searcher:
             result_origin = searcher.search(self.parse_query(query))
+            # result_origin现在就是一个hit对象，可以直接对它使用highlights方法
             #TODO 将查询结果中'content'字段内容改为html格式的摘要
 
+            my_cf = ContextFragmenter(maxchars=100, surround=30)
+            hi = Highlighter(fragmenter=my_cf)
+            for hit in result_origin:
+                # hit['fragment'] = highlight(hit['content'], query, analyzer,
+                #                             )
+                # print(hit['fragment'])
+                print(hit.highlights("content"))
+                fragment={}
+                fragment['fragment'] = hit.highlights("content")
+                fragments.append(fragment)
+
+
+
             for result in result_origin:
+                # my_cf = highlight.ContextFragmenter(maxchars=100, surround=30)
                 #Fragment size 的maxchars默认200，surround默认20
                 # dict(result)
                 # re.sub("[\t\r\n ]+", " ", result['content'])
-                # 不用去掉这几个字符，在返回结果中他们会在浏览器中自动转化
                 # results.append(result)
+                # result['fragment'] = hit.highlights("content")
+                # 无法修改search result
                 results.append(dict(result))
+            for i in range(len(results)):
+                results[i].update(fragments[i])
+            # results = zip(*[(result.update(fragment)) for result, fragment 
+            #                 in zip(results, fragments)])
+            # for fragment in fragments for result in results:
+            #     result.update(fragment)
         return results
             # result_len = len(result_origin)
             # for i in range(result_len):
