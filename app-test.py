@@ -19,6 +19,7 @@ CORS(app)
 client = MongoClient('localhost:27017')
 db = client.search
 co = db.search
+url_co = db.url
 analyzer = ChineseAnalyzer()
 # PAGE_SIZE = 5
 
@@ -121,6 +122,9 @@ class WhooshSarch(object):
         """
         self.ix.close()
 
+url_co.insert({"url": "www.nwsuaf.edu.cn"})
+# TODO 第一次的自动执行爬虫，执行完了再执行下面的代码
+# TODO 执行上面的语句时要先清空数据库
 
 nwsuaf = WhooshSarch(co)
 nwsuaf.rebuild_index()
@@ -130,9 +134,38 @@ nwsuaf.rebuild_index()
 # nwsuaf.close()
 
 
+
 @app.route('/')
 def index_page():
     return render_template('index.html')
+
+@app.route('/url-get', methods=['GET'])
+def url_get():
+    #find_one用来获取匹配的文档，当只有一个或只要第一个时很有用
+    urlstr = url_co.find_one()
+    #返回的字典不能直接jsonify，也不能直接用字典。
+    return jsonify({'posturl': urlstr['url']}), 200
+
+@app.route('/url-post', methods=['GET', 'POST'])
+def url_post():
+    if not request.json or not 'posturl' in request.json:
+        abort(400)
+    # update语句需要用$进行操作，加上$set即可,最后一个参数为true表示找不到就创建一个
+    # url_co.find_one_and_update({},{'posturl': request.json['posturl']})
+    url_co.find_one_and_update({},{'$set': {'url': request.json['posturl']}}, upsert=False)
+    urlstr = url_co.find_one()
+    return urlstr['url'] + "201"
+    
+# @app.route('/messages', methods=['POST'])
+# def test():
+#     if request.headers['Content-Type'] == 'text/plain':
+#         return "Text Message: " + request.data
+
+#     elif request.headers['Content-Type'] == 'application/json':
+#         return "JSON Message: " + json.dumps(request.json)
+
+#     else:
+#         return "415 Unsupported Media Type ;)"
 
 @app.route('/results', methods=['GET', 'POST'])
 def get_results():
