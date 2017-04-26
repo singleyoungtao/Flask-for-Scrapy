@@ -154,7 +154,7 @@ def url_post():
     # url_co.find_one_and_update({},{'posturl': request.json['posturl']})
     url_co.find_one_and_update({},{'$set': {'url': request.json['posturl']}}, upsert=False)
     urlstr = url_co.find_one()
-    return urlstr['url'] + "201"
+    return urlstr['url']
     
 # @app.route('/messages', methods=['POST'])
 # def test():
