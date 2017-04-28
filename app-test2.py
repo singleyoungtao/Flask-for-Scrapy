@@ -212,7 +212,9 @@ def check_crawl():
     cs_url = 'http://localhost:6800/daemonstatus.json'
     r = requests.get(cs_url)
     print(r.content)
-    return r.json()['pending']
+    # return r.json()['pending']
+    return r.json()
+
 
 # query_one = "关于举办新西兰林肯大学土壤学专家系列学术报告的通知"
 # pageshow = nwsuaf.search(query_one)
@@ -224,11 +226,12 @@ def check_crawl():
 
 nwsuaf = WhooshSarch(co)
 auto_crawl()
-crawl_finished = check_crawl()
+crawl_finished = check_crawl()['pending']
+print(crawl_finished)
 #此处添加延时函数
 while(crawl_finished > 0):
     time.sleep(60) #这里的单位是秒
-    crawl_finished = check_crawl()
+    crawl_finished = check_crawl()['pending']
 
 nwsuaf.rebuild_index()
 
@@ -257,7 +260,11 @@ def url_post():
     # 这里可以设置一个返回值，让前端接受到后停止抓取中/索引建立中的动画
     return urlstr['url']
 
-# @app.route('')
+@app.route('/check-crawl', methods=['GET'])
+def check_crawl_finished():
+    # 此处int值无法作为返回值，必须是json格式
+    # 'dict' object is not callable --此处也有错误
+    return json.dumps(check_crawl())
 
 # TODO 这里可以添加检查check_crawl()，以告诉前端是否爬取完毕
 
