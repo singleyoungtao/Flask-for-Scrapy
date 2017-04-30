@@ -288,8 +288,9 @@ def get_results():
     # 此处猜想，search的应该是已经建立好的index而非数据库
     print(query_keywords)
     print(pageshow)
+    total_items = len(pageshow)
     # TODO 此处添加完成搜索后的返回消息
-    return jsonify({'results': pageshow}), 201
+    return jsonify({'results': pageshow, 'total_items': total_items}), 201
 
 # @app.route('/keywords', method=['POST'])
 # def post_keywords():
