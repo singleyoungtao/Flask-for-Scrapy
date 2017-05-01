@@ -89,7 +89,8 @@ class WhooshSarch(object):
         results = []
         fragments = []
         with self.ix.searcher() as searcher:
-            result_origin = searcher.search(self.parse_query(query))
+            result_origin = searcher.search(self.parse_query(query), limit=None)
+            # 默认返回10条结果，limit=20或none可以显示20或者全部结果
             # result_origin现在就是一个hit对象，可以直接对它使用highlights方法
             #TODO 将查询结果中'content'字段内容改为html格式的摘要
 
