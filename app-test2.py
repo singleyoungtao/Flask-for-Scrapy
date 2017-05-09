@@ -259,6 +259,12 @@ def url_post():
     urlstr = url_co.find_one()
     auto_crawl() 
     # 这里可以设置一个返回值，让前端接受到后停止抓取中/索引建立中的动画
+    crawl_finished = check_crawl()['pending']
+    print(crawl_finished)
+    #此处添加延时函数
+    while(crawl_finished > 0):
+        time.sleep(60) #这里的单位是秒
+        crawl_finished = check_crawl()['pending']
     return urlstr['url']
 
 @app.route('/check-crawl', methods=['GET'])
@@ -306,4 +312,6 @@ def get_results():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    # host和port 参数
+    # app.run('0.0.0.0')
   
