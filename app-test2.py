@@ -311,7 +311,10 @@ def get_results():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
+
+    # app.run(debug=True)
+    # 先不开启debug
     # host和port 参数
     # app.run('0.0.0.0')
   
